@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             ['username' => 'admin'],
             [
                 'name' => 'Dhritiman Dey',
-                'email' => 'admin@mindcare.com',
+                'email' => 'admin@shantology.com',
                 'title' => 'Psychologist',
                 'role' => 'psychologist',
                 'phone' => '+91 98765 00000',

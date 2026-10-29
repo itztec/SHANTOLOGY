@@ -29,7 +29,7 @@ class MindCareFeatureTest extends TestCase
         $response = $this->get(route('login'));
 
         $response->assertOk();
-        $response->assertSee('MindCare');
+        $response->assertSee('SHANTOLOGY');
         $response->assertSee('Clinician Portal');
         $response->assertSee('Default Login Access');
         $response->assertSee('admin');

@@ -10,7 +10,8 @@
     
     <!-- Anti-FOUC Dark Mode Initializer -->
     <script>
-        if (localStorage.getItem('mindcare_theme') === 'dark' || (!('mindcare_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        const savedTheme = localStorage.getItem('shantology_theme') || localStorage.getItem('mindcare_theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -48,7 +49,7 @@
         <div class="flex items-start justify-between border-b-2 border-teal-800/20 pb-6">
             <div class="space-y-1">
                 <div class="text-2xl font-black text-[#082f37] tracking-tight flex items-center gap-2">
-                    <span>MindCare</span>
+                    <span>SHANTOLOGY</span>
                     <span class="text-xs font-semibold uppercase px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">Psychology Clinic</span>
                 </div>
                 <p class="text-xs text-slate-500 font-medium">Better Minds · Brighter Futures</p>
@@ -202,7 +203,7 @@
         <!-- Clinician Signature Block -->
         <div class="pt-8 flex justify-between items-end border-t border-slate-200">
             <div class="text-[10px] text-slate-400">
-                MindCare Confidential Clinical Document · Valid without signature if stamped
+                SHANTOLOGY Confidential Clinical Document · Valid without signature if stamped
             </div>
 
             <div class="text-right space-y-1">

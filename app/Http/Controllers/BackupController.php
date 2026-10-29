@@ -14,7 +14,7 @@ class BackupController extends Controller
     public function download(): StreamedResponse
     {
         $backupData = [
-            'app' => 'MindCare Psychology Clinic',
+            'app' => 'SHANTOLOGY Psychology Clinic',
             'exported_at' => now()->toIso8601String(),
             'clinicians' => User::all(),
             'patients' => Patient::with([
@@ -29,7 +29,7 @@ class BackupController extends Controller
         ];
 
         $json = json_encode($backupData, JSON_PRETTY_PRINT);
-        $fileName = 'mindcare_backup_'.now()->format('Y_m_d_His').'.json';
+        $fileName = 'shantology_backup_'.now()->format('Y_m_d_His').'.json';
 
         return response()->streamDownload(function () use ($json) {
             echo $json;

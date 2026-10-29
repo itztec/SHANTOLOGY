@@ -36,7 +36,7 @@ class AuthController extends Controller
         $loginInput = trim($credentials['login']);
         $password = $credentials['password'];
 
-        // Allow login using username ('admin') or email ('admin@mindcare.com')
+        // Allow login using username ('admin') or email ('admin@shantology.com')
         $user = User::where('username', $loginInput)
             ->orWhere('email', $loginInput)
             ->first();
@@ -67,6 +67,6 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')
-            ->with('status', 'You have been safely logged out of the MindCare Clinical Portal.');
+            ->with('status', 'You have been safely logged out of the SHANTOLOGY Clinical Portal.');
     }
 }

@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>MindCare - Clinician Portal Login</title>
+    <title>SHANTOLOGY - Clinician Portal Login</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- Anti-FOUC Dark Mode Initializer -->
     <script>
-        if (localStorage.getItem('mindcare_theme') === 'dark' || (!('mindcare_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        const savedTheme = localStorage.getItem('shantology_theme') || localStorage.getItem('mindcare_theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -33,10 +34,10 @@
               this.darkMode = !this.darkMode;
               if (this.darkMode) {
                   document.documentElement.classList.add('dark');
-                  localStorage.setItem('mindcare_theme', 'dark');
+                  localStorage.setItem('shantology_theme', 'dark');
               } else {
                   document.documentElement.classList.remove('dark');
-                  localStorage.setItem('mindcare_theme', 'light');
+                  localStorage.setItem('shantology_theme', 'light');
               }
               this.$nextTick(() => {
                   if (window.createIcons && window.lucideIcons) {
@@ -60,7 +61,7 @@
                 </svg>
             </div>
             <div>
-                <span class="text-xl font-black tracking-tight text-slate-900 dark:text-white">MindCare</span>
+                <span class="text-xl font-black tracking-tight text-slate-900 dark:text-white">SHANTOLOGY</span>
                 <span class="text-[11px] block font-semibold text-teal-700 dark:text-teal-400 uppercase tracking-wider">Psychology Clinic EMR</span>
             </div>
         </div>
@@ -108,7 +109,7 @@
                         <span class="text-[#0d5964] dark:text-teal-400">Healing Minds.</span>
                     </h1>
                     <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                        MindCare delivers comprehensive psychiatric case formulation, standardized MSE recording, psychometric evaluation, and goal-oriented psychotherapy session tracking in one unified EMR.
+                        SHANTOLOGY delivers comprehensive psychiatric case formulation, standardized MSE recording, psychometric evaluation, and goal-oriented psychotherapy session tracking in one unified EMR.
                     </p>
                 </div>
 
@@ -291,7 +292,7 @@
 
     <!-- Footer -->
     <footer class="w-full max-w-7xl mx-auto px-6 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
-        <div>MindCare Psychology Clinic & EMR © {{ date('Y') }} · Better Minds · Brighter Futures</div>
+        <div>SHANTOLOGY Psychology Clinic & EMR © {{ date('Y') }} · Better Minds · Brighter Futures</div>
     </footer>
 
 </body>

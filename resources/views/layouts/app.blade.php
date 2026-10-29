@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'MindCare - Psychology Clinic EMR' }}</title>
+    <title>{{ $title ?? 'SHANTOLOGY - Psychology Clinic EMR' }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Anti-FOUC Dark Mode Initializer -->
     <script>
-        if (localStorage.getItem('mindcare_theme') === 'dark' || (!('mindcare_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        const savedTheme = localStorage.getItem('shantology_theme') || localStorage.getItem('mindcare_theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -35,10 +36,10 @@
               this.darkMode = !this.darkMode;
               if (this.darkMode) {
                   document.documentElement.classList.add('dark');
-                  localStorage.setItem('mindcare_theme', 'dark');
+                  localStorage.setItem('shantology_theme', 'dark');
               } else {
                   document.documentElement.classList.remove('dark');
-                  localStorage.setItem('mindcare_theme', 'light');
+                  localStorage.setItem('shantology_theme', 'light');
               }
               this.$nextTick(() => {
                   if (window.createIcons && window.lucideIcons) {
@@ -78,7 +79,7 @@
                     </div>
                     <div>
                         <div class="text-xl font-bold tracking-tight text-white flex items-center gap-1">
-                            MindCare
+                            SHANTOLOGY
                         </div>
                         <div class="text-[11px] font-medium text-teal-300/80 tracking-wide">Better Minds · Brighter Futures</div>
                     </div>

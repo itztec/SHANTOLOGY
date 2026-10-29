@@ -1,4 +1,4 @@
-# MindCare - Psychology Clinic EMR
+# SHANTOLOGY - Psychology Clinic EMR
 
 > **Better Minds · Brighter Futures**  
 > Comprehensive Electronic Medical Record (EMR) system tailored specifically for Clinical Psychologists, Behavioral Therapists, and Mental Health Clinics.
@@ -7,7 +7,7 @@
 
 ## 🌟 Overview
 
-**MindCare** is a clinical-grade psychological EMR and practice management system built with modern Laravel, Tailwind CSS, and Alpine.js. Designed around real-world psychiatric workflows, MindCare streamlines patient clinical case histories, Mental Status Examinations (MSE), standardized psychometric assessments, CBT/intervention goal planning, daily consultation scheduling, and printable clinical case summaries.
+**SHANTOLOGY** is a clinical-grade psychological EMR and practice management system built with modern Laravel, Tailwind CSS, and Alpine.js. Designed around real-world psychiatric workflows, SHANTOLOGY streamlines patient clinical case histories, Mental Status Examinations (MSE), standardized psychometric assessments, CBT/intervention goal planning, daily consultation scheduling, and printable clinical case summaries.
 
 ---
 
@@ -15,7 +15,7 @@
 
 To access the clinical portal, use the following default credentials:
 
-- **Clinician ID / Username**: `admin` *(or `admin@mindcare.com`)*
+- **Clinician ID / Username**: `admin` *(or `admin@shantology.com`)*
 - **Password**: `1234`
 - **Clinician Profile**: Dr. Dhritiman Dey (Consultant Clinical Psychologist)
 
@@ -126,4 +126,4 @@ To access the clinical portal, use the following default credentials:
 
 ## 📄 License
 
-MindCare is open-sourced software licensed under the [MIT license](LICENSE).
+SHANTOLOGY is open-sourced software licensed under the [MIT license](LICENSE).
