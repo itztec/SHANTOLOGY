@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindCare - Psychology Clinic EMR</title>
+    <!-- Tailwind CSS CDN for GitHub Pages static execution -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        clinic: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#082f37',
+                            950: '#051c22',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    </style>
+</head>
+<body class="h-full min-h-screen bg-[#f4f7f9] dark:bg-[#0b1318] text-slate-800 dark:text-slate-100 antialiased transition-colors"
+      x-data="{
+          isLoggedIn: false,
+          activeNav: 'dashboard',
+          activeTab: 'case_history',
+          darkMode: false,
+          loginId: 'admin',
+          password: '',
+          showPassword: false,
+          loginError: '',
+          searchQuery: '',
+          toastMessage: '',
+          showToast(msg) {
+              this.toastMessage = msg;
+              setTimeout(() => { this.toastMessage = ''; }, 3500);
+          },
+          toggleDarkMode() {
+              this.darkMode = !this.darkMode;
+              if (this.darkMode) {
+                  document.documentElement.classList.add('dark');
+              } else {
+                  document.documentElement.classList.remove('dark');
+              }
+              this.$nextTick(() => { lucide.createIcons(); });
+          },
+          quickFill() {
+              this.loginId = 'admin';
+              this.password = '1234';
+              this.loginError = '';
+          },
+          handleLogin() {
+              if (this.loginId.trim() === 'admin' && this.password === '1234') {
+                  this.isLoggedIn = true;
+                  this.loginError = '';
+                  this.showToast('Welcome back, Dr. Dhritiman Dey!');
+                  this.$nextTick(() => { lucide.createIcons(); });
+              } else {
+                  this.loginError = 'Invalid credentials. Default ID: admin | Password: 1234';
+              }
+          },
+          handleLogout() {
+              this.isLoggedIn = false;
+              this.password = '';
+              this.showToast('You have safely logged out of the MindCare Clinical Portal.');
+              this.$nextTick(() => { lucide.createIcons(); });
+          }
+      }"
+      x-init="lucide.createIcons()">
+
+    <!-- Toast Notification -->
+    <div x-show="toastMessage" 
+         x-transition
+         class="fixed top-5 right-5 z-50 bg-[#082f37] text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-teal-500/30"
+         style="display: none;">
+        <i data-lucide="check-circle" class="w-5 h-5 text-teal-400"></i>
+        <span class="text-xs font-semibold" x-text="toastMessage"></span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: CLINICIAN PORTAL LOGIN & LANDING   -->
+    <!-- ========================================== -->
+    <div x-show="!isLoggedIn" class="min-h-screen flex flex-col justify-between">
+        
+        <!-- Top Floating Header -->
+        <header class="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#082f37] dark:bg-teal-500/20 border border-teal-800 dark:border-teal-400/30 flex items-center justify-center text-teal-300 shadow-sm">
+                    <i data-lucide="activity" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-tight text-slate-900 dark:text-white">MindCare</span>
+                    <span class="text-[11px] block font-semibold text-teal-700 dark:text-teal-400 uppercase tracking-wider">Psychology Clinic EMR</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Dark / Light Mode Switcher -->
+                <button type="button" 
+                        @click="toggleDarkMode()" 
+                        class="p-2.5 rounded-xl bg-white dark:bg-[#122027] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 shadow-sm transition-all cursor-pointer">
+                    <span x-show="darkMode" style="display: none;">
+                        <i data-lucide="sun" class="w-4 h-4 text-amber-400"></i>
+                    </span>
+                    <span x-show="!darkMode">
+                        <i data-lucide="moon" class="w-4 h-4 text-slate-600"></i>
+                    </span>
+                </button>
+
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-800/60 text-xs font-semibold text-teal-800 dark:text-teal-300">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>EMR System Active</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Login Content -->
+        <main class="flex-1 flex items-center justify-center px-4 py-8">
+            <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                
+                <!-- Left Feature Showcase -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-100/70 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 text-xs font-bold tracking-wide">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-teal-600 dark:text-teal-400"></i>
+                        <span>Secure Clinical Psychology Management</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                            Empowering Clinicians. <br class="hidden sm:inline"/>
+                            <span class="text-[#0d5964] dark:text-teal-400">Healing Minds.</span>
+                        </h1>
+                        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                            MindCare delivers comprehensive psychiatric case formulation, standardized MSE recording, psychometric evaluation, and goal-oriented psychotherapy session tracking in one unified EMR.
+                        </p>
+                    </div>
+
+                    <!-- Feature Badges Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-left">
+                        <div class="p-3.5 rounded-2xl bg-white dark:bg-[#122027] border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                            <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 flex items-center justify-center mb-2">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white">Case History</h4>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">HOPI & Family Background</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-white dark:bg-[#122027] border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                            <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 flex items-center justify-center mb-2">
+                                <i data-lucide="brain" class="w-4 h-4"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white">MSE & Assessment</h4>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">GAD-7, CDI-2 & Vanderbilt</p>
+                        </div>
+
+                        <div class="p-3.5 rounded-2xl bg-white dark:bg-[#122027] border border-slate-200/80 dark:border-slate-800 shadow-sm col-span-2 sm:col-span-1">
+                            <div class="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 flex items-center justify-center mb-2">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                            </div>
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white">SOAP Notes & Cal</h4>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Session Logs & Goals</p>
+                        </div>
+                    </div>
+
+                    <!-- Clinical Quote -->
+                    <div class="p-4 rounded-2xl bg-teal-900/5 dark:bg-teal-950/40 border border-teal-800/10 dark:border-teal-800/30 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-teal-600/20 text-teal-700 dark:text-teal-300 flex items-center justify-center shrink-0">
+                            <i data-lucide="quote" class="w-4 h-4"></i>
+                        </div>
+                        <p class="text-xs italic text-slate-600 dark:text-slate-300">
+                            "Dedicated to evidence-based psychotherapy, structured evaluations, and compassionate behavioral healthcare."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Login Form Card -->
+                <div class="lg:col-span-5 w-full">
+                    <div class="bg-white dark:bg-[#122027] rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 shadow-xl relative overflow-hidden">
+                        
+                        <!-- Top Accent Bar -->
+                        <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0d5964] via-teal-500 to-emerald-400"></div>
+
+                        <!-- Header -->
+                        <div class="mb-6">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Clinician Portal</h2>
+                                <span class="text-xs font-bold font-mono text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/80 px-2 py-0.5 rounded-md border border-teal-200 dark:border-teal-800/60">EMR v1.0</span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Please authenticate with your clinician credentials to access patient files.</p>
+                        </div>
+
+                        <!-- Quick Demo Credentials Banner -->
+                        <div class="mb-5 p-3 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <div class="text-xs">
+                                <div class="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                                    <i data-lucide="key-round" class="w-3.5 h-3.5 text-amber-600"></i>
+                                    <span>Default Login Access</span>
+                                </div>
+                                <div class="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5 font-mono">
+                                    ID: <span class="font-bold">admin</span> · Pass: <span class="font-bold">1234</span>
+                                </div>
+                            </div>
+
+                            <button type="button" 
+                                    @click="quickFill()" 
+                                    class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer self-start sm:self-auto">
+                                <i data-lucide="sparkles" class="w-3 h-3"></i>
+                                <span>1-Click Fill</span>
+                            </button>
+                        </div>
+
+                        <!-- Error alert -->
+                        <div x-show="loginError" 
+                             class="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60 text-xs font-semibold text-rose-800 dark:text-rose-200 flex items-center gap-2"
+                             style="display: none;">
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+                            <span x-text="loginError"></span>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form @submit.prevent="handleLogin()" class="space-y-4">
+                            <!-- Clinician ID -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Clinician ID / Username <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i data-lucide="user" class="w-4 h-4"></i>
+                                    </div>
+                                    <input type="text" 
+                                           x-model="loginId" 
+                                           required 
+                                           placeholder="admin" 
+                                           class="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-[#182a34] border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-[#1e3440] focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium">
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                        Password <span class="text-rose-500">*</span>
+                                    </label>
+                                    <span class="text-[11px] text-teal-600 dark:text-teal-400 font-medium font-mono">PIN: 1234</span>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i data-lucide="lock" class="w-4 h-4"></i>
+                                    </div>
+                                    <input :type="showPassword ? 'text' : 'password'" 
+                                           x-model="password" 
+                                           required 
+                                           placeholder="••••••••" 
+                                           class="w-full pl-10 pr-10 py-2.5 bg-slate-50 dark:bg-[#182a34] border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white dark:focus:bg-[#1e3440] focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-medium">
+                                    
+                                    <button type="button" 
+                                            @click="showPassword = !showPassword" 
+                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Sign In Button -->
+                            <div class="pt-2">
+                                <button type="submit" 
+                                        class="w-full py-3 px-4 bg-[#0d5964] hover:bg-[#0a464f] text-white font-bold text-sm rounded-xl shadow-md shadow-teal-900/20 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer group">
+                                    <span>Sign In to Clinical EMR</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Bottom Notice -->
+                        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+                            <div class="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+                                <i data-lucide="lock" class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400"></i>
+                                <span>Confidential Psychology Healthcare Portal</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full max-w-7xl mx-auto px-6 py-6 text-center text-xs text-slate-400 dark:text-slate-500">
+            <div>MindCare Psychology Clinic & EMR © 2026 · Better Minds · Brighter Futures</div>
+        </footer>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: AUTHENTICATED CLINICAL EMR PORTAL  -->
+    <!-- ========================================== -->
+    <div x-show="isLoggedIn" class="h-full flex overflow-hidden" style="display: none;">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-[#082f37] dark:bg-[#051c22] text-white flex flex-col justify-between shrink-0 border-r border-teal-900/40">
+            <div>
+                <!-- Brand Header -->
+                <div class="px-6 py-6 border-b border-teal-800/40">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
+                            <i data-lucide="activity" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <div class="text-xl font-bold tracking-tight text-white">MindCare</div>
+                            <div class="text-[11px] font-medium text-teal-300/80">Better Minds · Brighter Futures</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="px-4 py-6 space-y-1.5 font-medium text-sm">
+                    <button @click="activeNav = 'dashboard'" 
+                            :class="activeNav === 'dashboard' ? 'bg-[#0e7490] text-white font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5'"
+                            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all cursor-pointer">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <button @click="activeNav = 'patients'" 
+                            :class="activeNav === 'patients' ? 'bg-[#0e7490] text-white font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5'"
+                            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all cursor-pointer">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                        <span>Patients</span>
+                    </button>
+
+                    <button @click="activeNav = 'patient_detail'" 
+                            :class="activeNav === 'patient_detail' ? 'bg-[#0e7490] text-white font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5'"
+                            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all cursor-pointer">
+                        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                        <span>Patient Record (P001)</span>
+                    </button>
+
+                    <button @click="activeNav = 'calendar'" 
+                            :class="activeNav === 'calendar' ? 'bg-[#0e7490] text-white font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5'"
+                            class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all cursor-pointer">
+                        <i data-lucide="calendar" class="w-5 h-5"></i>
+                        <span>Calendar</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Bottom Clinician Mini Profile & Logout -->
+            <div class="px-6 py-6 border-t border-teal-800/40">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Dr. Dhritiman Dey</span>
+                    </span>
+                    <button @click="handleLogout()" class="hover:text-white flex items-center gap-1 transition-colors text-slate-400 cursor-pointer">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN APP WRAPPER -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f4f7f9] dark:bg-[#0b1318]">
+            
+            <!-- TOPBAR -->
+            <header class="h-18 bg-white dark:bg-[#0f1b21] border-b border-slate-200/80 dark:border-slate-800 px-6 flex items-center justify-between shrink-0 shadow-xs z-30 transition-colors">
+                <div class="flex items-center gap-4 flex-1 max-w-lg">
+                    <div class="relative w-full">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text"
+                               placeholder="Search patient by name, ID or phone number..." 
+                               class="w-full pl-10 pr-10 py-2 bg-slate-50 dark:bg-[#14232b] border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-700 dark:text-slate-100 placeholder:text-slate-400 focus:bg-white dark:focus:bg-[#182a34] focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Theme Switcher -->
+                    <button type="button" 
+                            @click="toggleDarkMode()" 
+                            class="p-2.5 rounded-xl text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent transition-all cursor-pointer">
+                        <span x-show="darkMode" style="display: none;"><i data-lucide="sun" class="w-5 h-5 text-amber-400"></i></span>
+                        <span x-show="!darkMode"><i data-lucide="moon" class="w-5 h-5 text-slate-600"></i></span>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span class="absolute top-2 right-2 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+                    </button>
+
+                    <!-- Clinician Badge -->
+                    <div class="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
+                        <div class="w-9 h-9 rounded-full bg-teal-600 text-white font-bold text-xs flex items-center justify-center">
+                            DD
+                        </div>
+                        <div class="hidden sm:block text-left text-xs">
+                            <div class="font-bold text-slate-800 dark:text-slate-100">Dr. Dhritiman Dey</div>
+                            <div class="text-slate-400">Psychologist</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SCROLLABLE PAGE CONTENT -->
+            <main class="flex-1 overflow-y-auto p-6 lg:p-8">
+
+                <!-- 1. DASHBOARD TAB -->
+                <div x-show="activeNav === 'dashboard'" class="space-y-6 max-w-7xl mx-auto">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-black text-slate-900 dark:text-white">Dashboard</h1>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Welcome back, Dr. Dhritiman Dey! Here is your clinic overview.</p>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-[#122027] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Patients</span>
+                            <div class="text-3xl font-black text-slate-900 dark:text-white mt-1">24</div>
+                            <span class="text-xs text-teal-600 font-semibold">+2 new this month</span>
+                        </div>
+                        <div class="bg-white dark:bg-[#122027] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Assigned Cases</span>
+                            <div class="text-3xl font-black text-teal-600 mt-1">12</div>
+                            <span class="text-xs text-slate-400 font-semibold">+3 this month</span>
+                        </div>
+                        <div class="bg-white dark:bg-[#122027] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Completed</span>
+                            <div class="text-3xl font-black text-emerald-600 mt-1">9</div>
+                            <span class="text-xs text-slate-400 font-semibold">+5 this month</span>
+                        </div>
+                        <div class="bg-white dark:bg-[#122027] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">In Progress</span>
+                            <div class="text-3xl font-black text-amber-600 mt-1">8</div>
+                            <span class="text-xs text-slate-400 font-semibold">+1 this month</span>
+                        </div>
+                    </div>
+
+                    <!-- Recent Patients Table -->
+                    <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Recent Patients</h2>
+                            <button @click="activeNav = 'patients'" class="text-xs font-bold text-teal-600 hover:text-teal-700">View All →</button>
+                        </div>
+                        <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                            <thead class="bg-slate-50 dark:bg-[#0f1b21] text-[11px] font-semibold text-slate-400 uppercase border-b border-slate-100 dark:border-slate-800">
+                                <tr>
+                                    <th class="px-5 py-3">Patient</th>
+                                    <th class="px-5 py-3">Age / Gender</th>
+                                    <th class="px-5 py-3">Phone</th>
+                                    <th class="px-5 py-3">Status</th>
+                                    <th class="px-5 py-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                                    <td class="px-5 py-3.5">
+                                        <div class="font-bold text-slate-900 dark:text-white">Riya Sharma</div>
+                                        <div class="text-xs font-mono text-teal-600">P001</div>
+                                    </td>
+                                    <td class="px-5 py-3.5">10 / F</td>
+                                    <td class="px-5 py-3.5 font-mono text-xs">9876543210</td>
+                                    <td class="px-5 py-3.5"><span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200">In Progress</span></td>
+                                    <td class="px-5 py-3.5 text-right">
+                                        <button @click="activeNav = 'patient_detail'" class="px-3 py-1 bg-white dark:bg-[#182a34] text-teal-700 dark:text-teal-300 border border-teal-200 rounded-lg text-xs font-bold cursor-pointer">Clinical File</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                                    <td class="px-5 py-3.5">
+                                        <div class="font-bold text-slate-900 dark:text-white">Arjun Das</div>
+                                        <div class="text-xs font-mono text-teal-600">P002</div>
+                                    </td>
+                                    <td class="px-5 py-3.5">16 / M</td>
+                                    <td class="px-5 py-3.5 font-mono text-xs">9807654321</td>
+                                    <td class="px-5 py-3.5"><span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200">Completed</span></td>
+                                    <td class="px-5 py-3.5 text-right">
+                                        <button @click="activeNav = 'patient_detail'" class="px-3 py-1 bg-white dark:bg-[#182a34] text-teal-700 dark:text-teal-300 border border-teal-200 rounded-lg text-xs font-bold cursor-pointer">Clinical File</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. PATIENT CLINICAL FILE TAB (P001: Riya Sharma) -->
+                <div x-show="activeNav === 'patient_detail'" class="space-y-6 max-w-7xl mx-auto" style="display: none;">
+                    <button @click="activeNav = 'dashboard'" class="text-xs font-bold text-slate-500 hover:text-teal-700 flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>Back to Dashboard</span>
+                    </button>
+
+                    <!-- Patient Header Banner -->
+                    <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-2xl bg-teal-100 dark:bg-teal-900/60 text-teal-800 dark:text-teal-200 text-xl font-bold flex items-center justify-center shrink-0">
+                                RS
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h1 class="text-xl font-black text-slate-900 dark:text-white">Riya Sharma</h1>
+                                    <span class="text-xs font-mono font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/80 px-2.5 py-0.5 rounded border border-teal-200">P001</span>
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200">In Progress</span>
+                                </div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">10 Yrs / Female · Phone: 9876543210 · Guardian: Alok Sharma (Father)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clinical Tabs -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-2 text-xs font-bold border-b border-slate-200 dark:border-slate-800">
+                        <button @click="activeTab = 'case_history'" :class="activeTab === 'case_history' ? 'border-b-2 border-teal-600 text-teal-600 dark:text-teal-400' : 'text-slate-500 hover:text-slate-800'" class="pb-3 px-3 cursor-pointer">Case History</button>
+                        <button @click="activeTab = 'mse'" :class="activeTab === 'mse' ? 'border-b-2 border-teal-600 text-teal-600 dark:text-teal-400' : 'text-slate-500 hover:text-slate-800'" class="pb-3 px-3 cursor-pointer">MSE</button>
+                        <button @click="activeTab = 'assessment'" :class="activeTab === 'assessment' ? 'border-b-2 border-teal-600 text-teal-600 dark:text-teal-400' : 'text-slate-500 hover:text-slate-800'" class="pb-3 px-3 cursor-pointer">Assessment (GAD-7)</button>
+                        <button @click="activeTab = 'goals'" :class="activeTab === 'goals' ? 'border-b-2 border-teal-600 text-teal-600 dark:text-teal-400' : 'text-slate-500 hover:text-slate-800'" class="pb-3 px-3 cursor-pointer">Goal Plan</button>
+                        <button @click="activeTab = 'progress'" :class="activeTab === 'progress' ? 'border-b-2 border-teal-600 text-teal-600 dark:text-teal-400' : 'text-slate-500 hover:text-slate-800'" class="pb-3 px-3 cursor-pointer">SOAP Notes</button>
+                    </div>
+
+                    <!-- Tab 1: Case History -->
+                    <div x-show="activeTab === 'case_history'" class="space-y-4">
+                        <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs space-y-4">
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-4 h-4 text-teal-600"></i>
+                                <span>Presenting Complaints</span>
+                            </h3>
+                            <ul class="list-disc list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                                <li>Difficulty in concentrating in school</li>
+                                <li>Often feels anxious and worries about small things</li>
+                                <li>Frequent mood changes and irritability</li>
+                            </ul>
+
+                            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-teal-600"></i>
+                                <span>History of Present Illness (HOPI)</span>
+                            </h3>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Symptoms started around 6 months back, initially noticed by parents as increased anxiety and reduced interest in studies. The child also reports difficulty in sleep and occasional tension headache. No history of self-harm.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Assessment -->
+                    <div x-show="activeTab === 'assessment'" class="space-y-4" style="display: none;">
+                        <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs">
+                            <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                                <div>
+                                    <div class="font-bold text-slate-900 dark:text-white">GAD-7 (Generalized Anxiety Scale)</div>
+                                    <div class="text-xs text-slate-400">Standardized Psychometric Screener</div>
+                                </div>
+                                <span class="text-sm font-mono font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-lg border border-teal-200">Score: 13 / 21</span>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
+                                <strong>Interpretation:</strong> Score of 13 corresponds to Moderate Generalized Anxiety. Recommended interventions include CBT psychoeducation, somatic diaphragmatic breathing, and gradual school test exposure.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 3. PATIENTS DIRECTORY TAB -->
+                <div x-show="activeNav === 'patients'" class="space-y-6 max-w-7xl mx-auto" style="display: none;">
+                    <div class="flex items-center justify-between">
+                        <h1 class="text-2xl font-black text-slate-900 dark:text-white">Patient Directory (24 Clients)</h1>
+                    </div>
+                    <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs">
+                        <p class="text-xs text-slate-500 dark:text-slate-400">All 24 clinical files available. Click any client to view full psychiatric record.</p>
+                    </div>
+                </div>
+
+                <!-- 4. CALENDAR TAB -->
+                <div x-show="activeNav === 'calendar'" class="space-y-6 max-w-7xl mx-auto" style="display: none;">
+                    <div class="flex items-center justify-between">
+                        <h1 class="text-2xl font-black text-slate-900 dark:text-white">Clinical Calendar & Sessions</h1>
+                    </div>
+                    <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-xs space-y-3">
+                        <div class="p-3 rounded-xl bg-teal-50 dark:bg-teal-950/80 border border-teal-200 flex items-center justify-between">
+                            <div>
+                                <div class="font-bold text-sm text-slate-900 dark:text-white">Riya Sharma (P001) · Session 1</div>
+                                <div class="text-xs text-slate-500">10:00 AM (50m) · Intake & Clinical Assessment</div>
+                            </div>
+                            <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-100">Scheduled</span>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+</body>
+</html>
