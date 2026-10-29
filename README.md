@@ -1,59 +1,129 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MindCare - Psychology Clinic EMR
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Better Minds · Brighter Futures**  
+> Comprehensive Electronic Medical Record (EMR) system tailored specifically for Clinical Psychologists, Behavioral Therapists, and Mental Health Clinics.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**MindCare** is a clinical-grade psychological EMR and practice management system built with modern Laravel, Tailwind CSS, and Alpine.js. Designed around real-world psychiatric workflows, MindCare streamlines patient clinical case histories, Mental Status Examinations (MSE), standardized psychometric assessments, CBT/intervention goal planning, daily consultation scheduling, and printable clinical case summaries.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🔐 Clinician Portal Login Credentials
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+To access the clinical portal, use the following default credentials:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Clinician ID / Username**: `admin` *(or `admin@mindcare.com`)*
+- **Password**: `1234`
+- **Clinician Profile**: Dr. Dhritiman Dey (Consultant Clinical Psychologist)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## ✨ Clinical Modules & Features
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Clinical Dashboard
+- **Real-time Caseload Analytics**: Total registered patients, active in-progress therapy cycles, completed cases, and weekly appointments.
+- **Monthly Clinical Progress**: Case completion vs. active caseload metrics.
+- **Today's Schedule & Quick Actions**: 1-click patient intake, calendar slot booking, and rapid EMR search (⌘K).
 
-```bash
-composer require laravel/boost --dev
+### 2. Patient Directory & Case Profiling
+- **Demographics & Pediatric Guardian Tracking**: Sequential ID numbering (`P001`, `P002`, ...), minor caregiver info, and status tags (`In Progress`, `Completed`, `Follow Up`, `Inactive`).
+- **Comprehensive Psychiatric Case History**:
+  - Presenting Complaints & Onset
+  - History of Present Illness (HOPI)
+  - Family Psychiatric History
+  - Developmental, Educational & Personal History
+  - Medical History & Organic Clearances
 
-php artisan boost:install
-```
+### 3. Mental Status Examination (MSE)
+- Structured clinical evaluation covering 9 standard dimensions:
+  1. General Appearance & Co-operation
+  2. Psychomotor Behavior & Fidgeting
+  3. Speech (Volume, Rate, Coherence)
+  4. Mood & Affect (Subjective vs Congruent)
+  5. Thought Process (Stream & Form)
+  6. Thought Content & Suicidal Risk Screening
+  7. Perception & Hallucination Assessment
+  8. Cognitive Functions (Orientation & Attention)
+  9. Insight & Judgment
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 4. Standardized Psychometric Assessments
+- Tracking and scoring of standard clinical batteries:
+  - **GAD-7** (Generalized Anxiety Disorder Screener)
+  - **Vanderbilt ADHD Parent/Teacher Rating Scale**
+  - **CDI-2** (Child Depression Inventory)
+- Score interpretation and clinical formulation recommendations.
 
-## Contributing
+### 5. Clinical Impression & DSM/ICD Diagnostic Formulation
+- Multi-axial clinical formulation with primary presenting concerns tags (`Anxiety`, `Attention Issues`, `Mood Changes`), provisional diagnosis, differential diagnosis, and ICD-11 / DSM-5 diagnostic codes.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 6. Goal-Oriented Treatment Planning
+- Short-term & long-term treatment goals with modalities (CBT, Exposure Therapy, Mindfulness & Somatic Regulation), target milestones, and completion status.
 
-## Code of Conduct
+### 7. SOAP Clinical Progress Notes
+- Subjective observations, objective behavioral metrics, clinical assessment, treatment plan updates, and between-session homework assignments.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 8. Calendar & Scheduling
+- Clinical consultations timeline with slot duration recommendations (45m psychotherapy, 60m intake, 90m assessment).
 
-## Security Vulnerabilities
+### 9. Clinical Reports & PDF Export
+- Practice caseload analytics and official A4 Confidential Psychological Evaluation & Case Summary formatted for print and PDF generation.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 10. Dark Mode & Light Mode
+- Class-based theme toggle with zero-FOUC initialization and persistence via `localStorage`.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# Mind-Care
+## 🚀 Local Installation & Setup
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/itztec/Mind-Care.git
+   cd Mind-Care
+   ```
+
+2. **Install PHP and Node Dependencies**:
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. **Configure Environment & Database**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   touch database/database.sqlite
+   php artisan migrate --seed
+   ```
+
+4. **Build Frontend Assets**:
+   ```bash
+   npm run build
+   ```
+
+5. **Start Local Development Server**:
+   ```bash
+   php artisan serve
+   ```
+   Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your web browser.
+
+---
+
+## 🧪 Testing & Code Quality
+
+- **Run Automated Feature & Unit Tests**:
+  ```bash
+  php artisan test
+  ```
+- **Run Laravel Pint Style Formatter**:
+  ```bash
+  vendor/bin/pint --format agent
+  ```
+
+---
+
+## 📄 License
+
+MindCare is open-sourced software licensed under the [MIT license](LICENSE).

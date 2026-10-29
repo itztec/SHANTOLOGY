@@ -25,15 +25,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Clinician Profile (Matches UI screenshot)
+        // 1. Clinician / Admin Profile (Matches user credentials: id 'admin', pass '1234')
         $doctor = User::updateOrCreate(
-            ['email' => 'dhritiman@mindcare.com'],
+            ['username' => 'admin'],
             [
                 'name' => 'Dhritiman Dey',
+                'email' => 'admin@mindcare.com',
                 'title' => 'Psychologist',
                 'role' => 'psychologist',
                 'phone' => '+91 98765 00000',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('1234'),
             ]
         );
 

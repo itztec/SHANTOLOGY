@@ -148,10 +148,13 @@
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span>Clinic Portal Active</span>
                 </span>
-                <a href="{{ route('dashboard') }}" class="hover:text-white flex items-center gap-1 transition-colors">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    <span>Logout</span>
-                </a>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="hover:text-white flex items-center gap-1 transition-colors text-slate-400 cursor-pointer">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
         </div>
     </aside>

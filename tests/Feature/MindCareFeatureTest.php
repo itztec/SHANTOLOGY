@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,10 +11,64 @@ class MindCareFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected User $adminUser;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed();
+        $this->adminUser = User::where('username', 'admin')->firstOrFail();
+        $this->actingAs($this->adminUser);
+    }
+
+    public function test_login_page_renders_landing_portal(): void
+    {
+        // Logout acting user to test guest access to login portal
+        auth()->logout();
+
+        $response = $this->get(route('login'));
+
+        $response->assertOk();
+        $response->assertSee('MindCare');
+        $response->assertSee('Clinician Portal');
+        $response->assertSee('Default Login Access');
+        $response->assertSee('admin');
+        $response->assertSee('1234');
+    }
+
+    public function test_clinician_can_login_with_admin_and_1234(): void
+    {
+        auth()->logout();
+
+        $response = $this->post(route('login.submit'), [
+            'login' => 'admin',
+            'password' => '1234',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticated();
+    }
+
+    public function test_clinician_cannot_login_with_invalid_password(): void
+    {
+        auth()->logout();
+
+        $response = $this->from(route('login'))->post(route('login.submit'), [
+            'login' => 'admin',
+            'password' => 'wrongpass',
+        ]);
+
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHasErrors(['login']);
+        $this->assertGuest();
+    }
+
+    public function test_clinician_can_logout(): void
+    {
+        $response = $this->post(route('logout'));
+
+        $response->assertRedirect(route('login'));
+        $this->assertGuest();
     }
 
     public function test_dashboard_page_loads_successfully(): void
