@@ -50,6 +50,82 @@
           loginError: '',
           searchQuery: '',
           toastMessage: '',
+          patientFilterStatus: 'all',
+          patientSearch: '',
+          showAddModal: false,
+          newPatient: {
+              name: '',
+              age: '',
+              gender: 'F',
+              phone: '',
+              email: '',
+              guardian_name: '',
+              guardian_relation: 'Parent',
+              guardian_phone: '',
+              category: 'Pediatric Anxiety',
+              complaints: '',
+              status: 'in_progress'
+          },
+          patients: [
+              { code: 'P001', name: 'Riya Sharma', age: 10, gender: 'F', phone: '+91 98765 43210', guardian: 'Suman Sharma (Mother)', date: '2026-10-15', status: 'in_progress', category: 'Pediatric Anxiety' },
+              { code: 'P002', name: 'Aarav Patel', age: 28, gender: 'M', phone: '+91 98111 22334', guardian: '', date: '2026-10-18', status: 'in_progress', category: 'Generalized Anxiety' },
+              { code: 'P003', name: 'Ananya Sen', age: 16, gender: 'F', phone: '+91 98222 33445', guardian: 'Deepak Sen (Father)', date: '2026-10-20', status: 'follow_up', category: 'Academic Stress' },
+              { code: 'P004', name: 'Kabir Roy', age: 34, gender: 'M', phone: '+91 98333 44556', guardian: '', date: '2026-10-22', status: 'completed', category: 'Major Depressive Disorder' },
+              { code: 'P005', name: 'Ishita Mukherjee', age: 22, gender: 'F', phone: '+91 98444 55667', guardian: 'P. Mukherjee (Parent)', date: '2026-10-25', status: 'in_progress', category: 'Obsessive Compulsive' }
+          ],
+          get proposedCode() {
+              return 'P' + String(this.patients.length + 1).padStart(3, '0');
+          },
+          filteredPatients() {
+              return this.patients.filter(p => {
+                  const matchesStatus = this.patientFilterStatus === 'all' || p.status === this.patientFilterStatus;
+                  const query = this.patientSearch.toLowerCase().trim();
+                  const matchesSearch = !query || 
+                                        p.name.toLowerCase().includes(query) || 
+                                        p.code.toLowerCase().includes(query) || 
+                                        p.phone.includes(query) || 
+                                        (p.category && p.category.toLowerCase().includes(query));
+                  return matchesStatus && matchesSearch;
+              });
+          },
+          submitNewPatient() {
+              if (!this.newPatient.name.trim() || !this.newPatient.age || !this.newPatient.phone.trim()) {
+                  alert('Please enter required details: Full Name, Age, and Phone Number.');
+                  return;
+              }
+              const code = this.proposedCode;
+              const today = new Date().toISOString().split('T')[0];
+              const created = {
+                  code: code,
+                  name: this.newPatient.name.trim(),
+                  age: parseInt(this.newPatient.age),
+                  gender: this.newPatient.gender,
+                  phone: this.newPatient.phone.trim(),
+                  email: this.newPatient.email.trim(),
+                  guardian: this.newPatient.guardian_name.trim() ? `${this.newPatient.guardian_name.trim()} (${this.newPatient.guardian_relation || 'Parent'})` : '',
+                  date: today,
+                  status: this.newPatient.status,
+                  category: this.newPatient.category
+              };
+              this.patients.unshift(created);
+              this.showAddModal = false;
+              this.activeNav = 'patients';
+              this.showToast(`Patient ${created.name} (${code}) added successfully!`);
+              this.newPatient = {
+                  name: '',
+                  age: '',
+                  gender: 'F',
+                  phone: '',
+                  email: '',
+                  guardian_name: '',
+                  guardian_relation: 'Parent',
+                  guardian_phone: '',
+                  category: 'Pediatric Anxiety',
+                  complaints: '',
+                  status: 'in_progress'
+              };
+              this.$nextTick(() => { lucide.createIcons(); });
+          },
           showToast(msg) {
               this.toastMessage = msg;
               setTimeout(() => { this.toastMessage = ''; }, 3500);
@@ -349,6 +425,12 @@
                         <span>Patients</span>
                     </button>
 
+                    <button @click="showAddModal = true" 
+                            class="w-full flex items-center gap-3.5 px-4 py-2.5 rounded-xl transition-all cursor-pointer text-teal-300 hover:text-white bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/30 font-semibold shadow-xs">
+                        <i data-lucide="user-plus" class="w-4 h-4 text-teal-400"></i>
+                        <span>+ Add Patient</span>
+                    </button>
+
                     <button @click="activeNav = 'patient_detail'" 
                             :class="activeNav === 'patient_detail' ? 'bg-[#0e7490] text-white font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5'"
                             class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all cursor-pointer">
@@ -582,12 +664,120 @@
 
                 <!-- 3. PATIENTS DIRECTORY TAB -->
                 <div x-show="activeNav === 'patients'" class="space-y-6 max-w-7xl mx-auto" style="display: none;">
-                    <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-black text-slate-900 dark:text-white">Patient Directory (24 Clients)</h1>
+                    
+                    <!-- Header with Add Patient CTA -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="users" class="w-6 h-6 text-slate-700 dark:text-slate-300"></i>
+                                <h1 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Patient Directory</h1>
+                                <span class="ml-2 text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/80 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800" x-text="patients.length + ' Registered'"></span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage and access all patient clinical records, demographics, and psychological case files.</p>
+                        </div>
+
+                        <!-- Add Patient Button -->
+                        <button @click="showAddModal = true" 
+                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0d5964] hover:bg-[#0a464f] text-white font-bold text-xs rounded-xl shadow-xs transition-colors self-start md:self-auto cursor-pointer">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>Add New Patient</span>
+                        </button>
                     </div>
-                    <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs">
-                        <p class="text-xs text-slate-500 dark:text-slate-400">All 24 clinical files available. Click any client to view full psychiatric record.</p>
+
+                    <!-- Filters & Search Bar -->
+                    <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <!-- Status Filter Tabs -->
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 text-xs font-semibold">
+                            <button @click="patientFilterStatus = 'all'" 
+                                    :class="patientFilterStatus === 'all' ? 'bg-teal-600 text-white font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                                    class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                                All Patients (<span x-text="patients.length"></span>)
+                            </button>
+                            <button @click="patientFilterStatus = 'in_progress'" 
+                                    :class="patientFilterStatus === 'in_progress' ? 'bg-teal-600 text-white font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                                    class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                                In Progress
+                            </button>
+                            <button @click="patientFilterStatus = 'follow_up'" 
+                                    :class="patientFilterStatus === 'follow_up' ? 'bg-teal-600 text-white font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                                    class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                                Follow Up
+                            </button>
+                            <button @click="patientFilterStatus = 'completed'" 
+                                    :class="patientFilterStatus === 'completed' ? 'bg-teal-600 text-white font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                                    class="px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                                Completed
+                            </button>
+                        </div>
+
+                        <!-- Directory Search Form -->
+                        <div class="relative w-full md:w-64">
+                            <input type="text" 
+                                   x-model="patientSearch"
+                                   placeholder="Filter by name, ID, phone..." 
+                                   class="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-[#182a34] border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-[#1e3440] focus:outline-none focus:ring-2 focus:ring-teal-500/20">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
+                                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <button x-show="patientSearch" @click="patientSearch = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
                     </div>
+
+                    <!-- Patients Table Card -->
+                    <div class="bg-white dark:bg-[#122027] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                                <thead class="bg-slate-50 dark:bg-[#0f1b21] text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                                    <tr>
+                                        <th class="px-5 py-3.5">Patient ID</th>
+                                        <th class="px-5 py-3.5">Patient Name</th>
+                                        <th class="px-5 py-3.5">Age / Gender</th>
+                                        <th class="px-5 py-3.5">Phone</th>
+                                        <th class="px-5 py-3.5">Category</th>
+                                        <th class="px-5 py-3.5">Status</th>
+                                        <th class="px-5 py-3.5 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <template x-for="patient in filteredPatients()" :key="patient.code">
+                                        <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
+                                            <td class="px-5 py-3.5 font-mono text-xs font-bold text-teal-700 dark:text-teal-400" x-text="patient.code"></td>
+                                            <td class="px-5 py-3.5">
+                                                <div class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                                    <span x-text="patient.name"></span>
+                                                </div>
+                                                <div x-show="patient.guardian" class="text-[11px] text-slate-400 dark:text-slate-500" x-text="'Guardian: ' + patient.guardian"></div>
+                                            </td>
+                                            <td class="px-5 py-3.5 font-medium text-slate-600 dark:text-slate-300" x-text="patient.age + ' Yrs / ' + patient.gender"></td>
+                                            <td class="px-5 py-3.5 font-mono text-xs text-slate-600 dark:text-slate-300" x-text="patient.phone"></td>
+                                            <td class="px-5 py-3.5 text-xs text-slate-600 dark:text-slate-300">
+                                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-medium" x-text="patient.category || 'General Psychology'"></span>
+                                            </td>
+                                            <td class="px-5 py-3.5">
+                                                <span :class="{
+                                                    'bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border-sky-200': patient.status === 'in_progress',
+                                                    'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200': patient.status === 'follow_up',
+                                                    'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200': patient.status === 'completed'
+                                                }" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border" x-text="patient.status === 'in_progress' ? 'In Progress' : (patient.status === 'follow_up' ? 'Follow Up' : 'Completed')"></span>
+                                            </td>
+                                            <td class="px-5 py-3.5 text-right">
+                                                <button @click="activeNav = 'patient_detail'" class="inline-flex items-center gap-1 px-3 py-1 bg-white dark:bg-[#182a34] text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 rounded-lg text-xs font-bold hover:bg-teal-50 dark:hover:bg-teal-950/60 transition-colors cursor-pointer">
+                                                    <span>View Record</span>
+                                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <div x-show="filteredPatients().length === 0" class="p-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                                No patients match the current search or status filter.
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- 4. CALENDAR TAB -->
@@ -607,6 +797,160 @@
                 </div>
 
             </main>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: ADD NEW PATIENT INTAKE              -->
+    <!-- ========================================== -->
+    <div x-show="showAddModal" 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+         style="display: none;"
+         @keydown.escape.window="showAddModal = false">
+
+        <div class="w-full max-w-2xl bg-white dark:bg-[#122027] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden"
+             @click.away="showAddModal = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100">
+
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-[#0f1b21]/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                        <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900 dark:text-white">New Patient Intake</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Register a new client into the SHANTOLOGY clinical directory.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/80 px-2.5 py-1 rounded-md border border-teal-200 dark:border-teal-800/60" x-text="proposedCode"></span>
+                    <button @click="showAddModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Form -->
+            <form @submit.prevent="submitNewPatient()" class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+                
+                <!-- Section 1: Demographics -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-300 text-[10px] flex items-center justify-center font-bold">1</span>
+                        <span>Client Demographics</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Full Name <span class="text-rose-500">*</span></label>
+                            <input type="text" x-model="newPatient.name" required placeholder="e.g. Subir Ganguly" 
+                                   class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Age <span class="text-rose-500">*</span></label>
+                            <input type="number" x-model="newPatient.age" required min="1" max="120" placeholder="e.g. 24" 
+                                   class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Gender <span class="text-rose-500">*</span></label>
+                            <select x-model="newPatient.gender" required class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                                <option value="F">Female (F)</option>
+                                <option value="M">Male (M)</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Phone <span class="text-rose-500">*</span></label>
+                            <input type="text" x-model="newPatient.phone" required placeholder="e.g. +91 98765 00000" 
+                                   class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30 font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Email</label>
+                            <input type="email" x-model="newPatient.email" placeholder="client@example.com" 
+                                   class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Guardian Details -->
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-300 text-[10px] flex items-center justify-center font-bold">2</span>
+                        <span>Guardian & Emergency Contact (Optional)</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Guardian Name</label>
+                            <input type="text" x-model="newPatient.guardian_name" placeholder="e.g. Ramesh Ganguly" 
+                                   class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Relationship</label>
+                            <input type="text" x-model="newPatient.guardian_relation" placeholder="e.g. Father, Mother, Spouse" 
+                                   class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Clinical Classification -->
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+                        <span class="w-4 h-4 rounded-full bg-teal-500/20 text-teal-600 dark:text-teal-300 text-[10px] flex items-center justify-center font-bold">3</span>
+                        <span>Clinical Classification</span>
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Primary Category</label>
+                            <select x-model="newPatient.category" class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                                <option value="Pediatric Anxiety">Pediatric Anxiety</option>
+                                <option value="Generalized Anxiety (GAD)">Generalized Anxiety (GAD)</option>
+                                <option value="Depression / MDD">Depression / MDD</option>
+                                <option value="Obsessive Compulsive (OCD)">Obsessive Compulsive (OCD)</option>
+                                <option value="ADHD & Behavioral">ADHD & Behavioral</option>
+                                <option value="Academic & Exam Stress">Academic & Exam Stress</option>
+                                <option value="Trauma / PTSD">Trauma / PTSD</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Initial Status</label>
+                            <select x-model="newPatient.status" class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+                                <option value="in_progress">In Progress</option>
+                                <option value="follow_up">Follow Up</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Presenting Complaints & Notes</label>
+                        <textarea x-model="newPatient.complaints" rows="2" placeholder="Brief notes on chief complaints, duration, and clinical referrals..." 
+                                  class="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#182a34] text-slate-800 dark:text-slate-100 py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500/30"></textarea>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+                    <button type="button" @click="showAddModal = false" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#0d5964] hover:bg-[#0a464f] text-white text-xs font-bold shadow-md shadow-teal-900/20 hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Register Patient</span>
+                    </button>
+                </div>
+            </form>
+
         </div>
     </div>
 
